@@ -18,19 +18,19 @@ class HMap[Rel[_, _], R <: HList](val underlying: R){
     implicit rel: Rel[K, V]
     , modifier: hlist.Modifier.Aux[R, Map[K, V], Map[K, V], R2]
     , last: tuple.Last.Aux[R2, R]
-  ) = this.update[K,V,R2](_ + kv)
+  ) = this.update[K,V,R2](rel)(_ + kv)
 
   def -[K, V, R2](k: K)(
     implicit rel: Rel[K, V]
     , modifier: hlist.Modifier.Aux[R, Map[K, V], Map[K, V], R2]
     , last: tuple.Last.Aux[R2, R]
-  ) = this.update[K,V,R2](_ - k)
+  ) = this.update[K,V,R2](rel)(_ - k)
 
   def ++[K, V, R2](m: Map[K, V])(
     implicit rel: Rel[K, V]
     , modifier: hlist.Modifier.Aux[R, Map[K, V], Map[K, V], R2]
     , last: tuple.Last.Aux[R2, R]
-  ) = update[K, V, R2](_ ++ m)
+  ) = update[K, V, R2](rel)(_ ++ m)
 
   def ++[K, V, R2 <: HList](m: HMap[Rel, R2])(
     implicit zip: hlist.ZipWith.Aux[R, R2, HMap.zipAppend.type, R]
@@ -40,7 +40,7 @@ class HMap[Rel[_, _], R <: HList](val underlying: R){
     implicit rel: Rel[K, V]
     , modifier: hlist.Modifier.Aux[R, Map[K, V], Map[K, V], R2]
     , last: tuple.Last.Aux[R2, R]
-  ) = update[K, V, R2](_ -- keys)
+  ) = update[K, V, R2](rel)(_ -- keys)
 
   def --[K, V, R2 <: HList](keys: R2)(
     implicit zip: hlist.ZipWith.Aux[R, R2, HMap.zipRemove.type, R]
@@ -50,16 +50,15 @@ class HMap[Rel[_, _], R <: HList](val underlying: R){
     implicit zip: hlist.ZipWith.Aux[R, R2, HMap.zipRemove.type, R]
   ) = new HMap[Rel, R](zip(underlying, m.underlying))
 
-  def update[K, V, R2](f: Map[K,V] => Map[K,V])(
-    implicit rel: Rel[K, V]
-    , modifier: hlist.Modifier.Aux[R, Map[K, V], Map[K, V], R2]
+  def update[K, V, R2](rel: Rel[K, V])(f: Map[K,V] => Map[K,V])(
+    implicit modifier: hlist.Modifier.Aux[R, Map[K, V], Map[K, V], R2]
     , last: tuple.Last.Aux[R2, R]
   ) = new HMap[Rel, R](last(modifier(underlying, f)))
 
-  def remove[K, V, R2, R3 <: HList](rel: Rel[K, V])(
-    implicit rm: hlist.Remove.Aux[R, Map[K, V], R2]
-    , last: tuple.Last.Aux[R2, R3]
-  ) = new HMap[Rel, R3](last(rm(underlying)))
+  def clear[K, V, R2](rel: Rel[K, V])(
+    implicit modifier: hlist.Modifier.Aux[R, Map[K, V], Map[K, V], R2]
+    , last: tuple.Last.Aux[R2, R]
+  ) = update(rel)(_ => Map.empty)
 
   def size(implicit folder: hlist.LeftFolder.Aux[R, Int, HMap.size.type, Int]) = folder(underlying, 0)
 
