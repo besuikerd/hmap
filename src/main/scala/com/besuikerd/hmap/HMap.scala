@@ -1,8 +1,6 @@
 package com.besuikerd.hmap
 
-import shapeless.PolyDefns.~>
 import shapeless._
-import syntax._
 import shapeless.ops.{hlist, tuple}
 
 object mapAddAll extends Poly3{

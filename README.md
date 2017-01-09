@@ -8,21 +8,23 @@ A Heterogeneous map contains different types of values for different keys. Each 
 
 ```scala
 
-sealed trait Relation[K, V]
+sealed trait SomeRelation[K, V]
 
-object Relation{
-  implicit case object Int2Bool extends Relation[Boolean, Int]
+object SomeRelation extends Relation{
+  implicit case object Int2Bool extends Relation[Int, Boolean]
   implicit case object String2Int extends Relation[String, Int]
+  
+  override type MapType = Map[Int, Bool] :: Map[String, Int] :: HNil
+  override type Rel[K,V] = SomeRelation[K,V]
+  
+  val empty = HMap.empty[Relation](Int2Bool, String2Int)
 }
 ```
 
-To create a HMap, you have to create an empty one first. `HMap.empty` can be used to instantiate it with the corresponding relation:
+To create a HMap, you have to create an empty one first. `HMap.empty` can be used to instantiate it with the corresponding relation.
+since HMap is immutable, you can reuse this empty instance for all HMaps that would use the relation above. The `Relation` class is optional, if you specify the inner `MapType`, relation type `Rel` and the empty instance for this relation, you get a few factory methods for free defined in `RelationInstanceBuilder`. 
 
-```scala
-val empty = HMap.empty[Relation](Int2Bool, String2Int)
-```
-
-since HMap is immutable, you can reuse this empty instance for all HMaps that would use the relation above. with this instance we can add mappings:
+With the empty instance we can add mappings:
 
 ```scala
 val m1 = empty + (42 -> true)
