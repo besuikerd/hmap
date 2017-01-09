@@ -12,6 +12,9 @@ object mapAddAll extends Poly3{
 }
 
 class HMap[Rel[_, _], R <: HList](val underlying: R){
+  type Relation[K,V] = Rel[K,V]
+  type MapType = R
+
   def +[K,V, R2](kv: (K,V))(
     implicit rel: Rel[K, V]
     , modifier: hlist.Modifier.Aux[R, Map[K, V], Map[K, V], R2]

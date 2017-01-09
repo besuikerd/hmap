@@ -14,15 +14,15 @@ object SomeRelation extends Relation{
   implicit case object Int2Bool extends Relation[Int, Boolean]
   implicit case object String2Int extends Relation[String, Int]
   
-  override type MapType = Map[Int, Bool] :: Map[String, Int] :: HNil
-  override type Rel[K,V] = SomeRelation[K,V]
-  
-  val empty = HMap.empty[Relation](Int2Bool, String2Int)
+  val emptyInstance = HMap.empty[Relation](Int2Bool, String2Int)
+  override type Relation[K,V] = emptyInstance.type#Relation
+  override type MapType = emptyInstance.type#MapType
+  override val empty = emptyInstance
 }
 ```
 
 To create a HMap, you have to create an empty one first. `HMap.empty` can be used to instantiate it with the corresponding relation.
-since HMap is immutable, you can reuse this empty instance for all HMaps that would use the relation above. The `Relation` class is optional, if you specify the inner `MapType`, relation type `Rel` and the empty instance for this relation, you get a few factory methods for free defined in `RelationInstanceBuilder`. 
+since HMap is immutable, you can reuse this empty instance for all HMaps that would use the relation above. The `Relation` class is optional, if you specify the inner `MapType`, relation type `Relation` and the empty instance for this relation, you get a few factory methods for free defined in `RelationInstanceBuilder`. A separate variable `emptyInstance` is used to prevent cyclic references between types. 
 
 With the empty instance we can add mappings:
 

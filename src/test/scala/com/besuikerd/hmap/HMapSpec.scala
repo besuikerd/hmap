@@ -6,14 +6,16 @@ import shapeless.{::, HNil}
 
 sealed trait SomeRelation[K, V]
 
+
 object SomeRelation extends Relation{
   implicit case object RelInt extends SomeRelation[Int, Int]
   implicit case object RelString extends SomeRelation[String, Int]
   implicit case object RelBool extends SomeRelation[Boolean, String]
 
-  override val empty: Type = HMap.empty[SomeRelation](RelInt, RelString, RelBool)
-  override type MapType = ::[Map[Int, Int], ::[Map[String, Int], ::[Map[Boolean, String], HNil]]]
-  override type Rel[K,V] = SomeRelation[K,V]
+  val emptyInstance = HMap.empty[SomeRelation](RelInt, RelString, RelBool)
+  override type MapType = emptyInstance.type#MapType
+  override type Relation[K,V] = emptyInstance.type#Relation[K,V]
+  override val empty = emptyInstance
 }
 
 class HMapSpec extends FlatSpec{
